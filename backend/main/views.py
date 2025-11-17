@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.utils import timezone
 from .models import Project, Task, Link, LogEntry
+from .github_client import GitHubClient
 
 
 def home(request):
@@ -45,11 +46,22 @@ def project_detail(request, project_id):
     links = project.links.all()
     logs = project.logs.all()[:10]  # Last 10 log entries
     
+    # Fetch GitHub data if repo_name is set
+    github_data = {}
+    if project.repo_name:
+        github = GitHubClient()
+        github_data = {
+            'pull_requests': github.fetch_pull_requests(project.repo_name),
+            'commits': github.fetch_commits(project.repo_name, limit=5),
+            'issues': github.fetch_issues(project.repo_name),
+        }
+    
     return render(request, 'project_detail.html', {
         'project': project,
         'tasks': tasks,
         'links': links,
-        'logs': logs
+        'logs': logs,
+        'github_data': github_data,
     })
 
 
@@ -91,3 +103,23 @@ def today_view(request):
     all_urgent_tasks = (urgent_tasks | overdue_tasks).distinct().order_by('-priority', 'due_date')
     
     return render(request, 'today.html', {'tasks': all_urgent_tasks})
+
+
+def review_merge_queue(request):
+    """Review & Merge Queue showing all open PRs across all repositories"""
+    # Get all projects with GitHub repositories
+    projects = Project.objects.exclude(repo_name='').exclude(repo_name__isnull=True)
+    
+    github = GitHubClient()
+    all_prs = []
+    
+    for project in projects:
+        prs = github.fetch_pull_requests(project.repo_name, state='open')
+        for pr in prs:
+            pr['project'] = project
+            all_prs.append(pr)
+    
+    # Sort by updated_at (most recent first)
+    all_prs.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
+    
+    return render(request, 'review_merge.html', {'pull_requests': all_prs})

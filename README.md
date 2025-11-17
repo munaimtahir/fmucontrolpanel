@@ -2,9 +2,9 @@
 
 FMU project live dashboard - A comprehensive control panel for managing FMU projects, tasks, and GitHub integrations.
 
-## Current Status - Stage 1 Complete ✅
+## Current Status - Stage 2 Complete ✅
 
-This project has completed Stage 0 and Stage 1, with the following features:
+This project has completed Stages 0, 1, and 2, with the following features:
 
 ### Stage 0 - Base Skeleton
 - Django 5.2.8 project structure
@@ -20,6 +20,13 @@ This project has completed Stage 0 and Stage 1, with the following features:
 - **HTMX Task Toggle**: Interactive status changes without page reload
 - **Today View**: Urgent and high-priority tasks across all projects
 - **Seed Data**: 5 pre-configured FMU projects with sample data
+
+### Stage 2 - GitHub Read-Only Integration
+- **GitHub API Client**: Fetch PRs, commits, and issues from repositories
+- **Repository Mapping**: `repo_name` field added to Project model
+- **GitHub Activity Section**: Display PRs, commits, and issues on project detail pages
+- **Review & Merge Queue**: Centralized view of all open PRs across repositories
+- **Environment Configuration**: GITHUB_TOKEN support for API authentication
 
 ## Setup Instructions
 
@@ -94,7 +101,7 @@ fmucontrolpanel/
 
 - [x] **Stage 0**: Base Skeleton - Django setup with Tailwind CSS and HTMX
 - [x] **Stage 1**: Core Models + Manual Dashboard - Project management with tasks, links, and logs
-- [ ] **Stage 2**: GitHub Read-Only Integration
+- [x] **Stage 2**: GitHub Read-Only Integration - PR, commit, and issue display
 - [ ] **Stage 3**: Auto Status + Webhooks + Issue→Task Sync
 - [ ] **Stage 4**: Production Hardening + Deployment Docs
 

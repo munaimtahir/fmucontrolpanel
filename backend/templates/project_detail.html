@@ -89,6 +89,92 @@
         </div>
     </div>
     
+    <!-- GitHub Activity Section -->
+    {% if project.repo_name and github_data %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">GitHub Activity</h2>
+            <a href="https://github.com/{{ project.repo_name }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1">
+                View on GitHub
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Pull Requests -->
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    Open Pull Requests ({{ github_data.pull_requests|length }})
+                </h3>
+                <div class="space-y-2">
+                    {% for pr in github_data.pull_requests|slice:":5" %}
+                    <a href="{{ pr.html_url }}" target="_blank" class="block p-3 border border-gray-200 rounded hover:border-green-500 hover:bg-green-50 transition">
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-600 font-mono text-sm">#{{ pr.number }}</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ pr.title }}</p>
+                                <p class="text-xs text-gray-500">by {{ pr.user }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No open pull requests</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Recent Commits -->
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    Recent Commits
+                </h3>
+                <div class="space-y-2">
+                    {% for commit in github_data.commits %}
+                    <a href="{{ commit.html_url }}" target="_blank" class="block p-3 border border-gray-200 rounded hover:border-blue-500 hover:bg-blue-50 transition">
+                        <div class="flex items-start gap-2">
+                            <code class="text-xs bg-gray-100 px-2 py-1 rounded">{{ commit.sha }}</code>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-800 truncate">{{ commit.message }}</p>
+                                <p class="text-xs text-gray-500">{{ commit.author }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No recent commits</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Open Issues -->
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                    Open Issues ({{ github_data.issues|length }})
+                </h3>
+                <div class="space-y-2">
+                    {% for issue in github_data.issues|slice:":5" %}
+                    <a href="{{ issue.html_url }}" target="_blank" class="block p-3 border border-gray-200 rounded hover:border-orange-500 hover:bg-orange-50 transition">
+                        <div class="flex items-start gap-2">
+                            <span class="text-orange-600 font-mono text-sm">#{{ issue.number }}</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ issue.title }}</p>
+                                <p class="text-xs text-gray-500">by {{ issue.user }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No open issues</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Links Section -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Links & Resources</h2>

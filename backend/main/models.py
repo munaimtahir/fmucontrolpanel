@@ -21,6 +21,7 @@ class Project(models.Model):
     
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(blank=True)
+    repo_name = models.CharField(max_length=200, blank=True, help_text="GitHub repository (format: owner/repo)")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PLANNING')
     risk = models.CharField(max_length=10, choices=RISK_CHOICES, default='LOW')
     summary = models.TextField(blank=True, help_text="Brief project summary")

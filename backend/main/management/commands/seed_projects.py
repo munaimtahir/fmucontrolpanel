@@ -17,6 +17,7 @@ class Command(BaseCommand):
         project1 = Project.objects.create(
             name='FMU Consultation System',
             description='Web-based consultation system for FMU clients to schedule and manage appointments.',
+            repo_name='fmu/consultation-system',
             status='IN_PROGRESS',
             risk='MEDIUM',
             summary='Backend API complete, frontend integration in progress. Expected completion next month.',
@@ -51,6 +52,7 @@ class Command(BaseCommand):
         project2 = Project.objects.create(
             name='FMU Website',
             description='Main FMU corporate website with service information and contact forms.',
+            repo_name='fmu/website',
             status='IN_PROGRESS',
             risk='LOW',
             summary='Content updates ongoing. New landing page design approved.',
@@ -91,6 +93,7 @@ class Command(BaseCommand):
         project3 = Project.objects.create(
             name='SIMS',
             description='Student Information Management System for tracking academic records and enrollment.',
+            repo_name='fmu/sims',
             status='PLANNING',
             risk='HIGH',
             summary='Requirements gathering phase. Database schema being finalized.',
@@ -125,6 +128,7 @@ class Command(BaseCommand):
         project4 = Project.objects.create(
             name='Google Workspace',
             description='Google Workspace administration and integration for FMU organization.',
+            repo_name='',  # No GitHub repo for this project
             status='COMPLETED',
             risk='LOW',
             summary='All users migrated successfully. SSO configured and working.',
@@ -163,6 +167,7 @@ class Command(BaseCommand):
         project5 = Project.objects.create(
             name='SIMS/Workspace Database & Sync',
             description='Integration between SIMS and Google Workspace for automated user provisioning.',
+            repo_name='fmu/workspace-sync',
             status='BLOCKED',
             risk='HIGH',
             summary='Waiting for SIMS database schema finalization. Sync architecture designed.',
