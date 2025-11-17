@@ -33,7 +33,7 @@ services:
       - DJANGO_SETTINGS_MODULE=fmucontrolpanel.settings_prod
       - DEBUG=0
       - SECRET_KEY=${SECRET_KEY:-django-insecure-dev-key-change-in-production}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,172.235.33.181}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,172.235.33.181,104.64.0.164}
       - POSTGRES_DB=fmucontrolpanel
       - POSTGRES_USER=fmuuser
       - POSTGRES_PASSWORD=changeme123
