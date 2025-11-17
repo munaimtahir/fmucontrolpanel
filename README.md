@@ -2,9 +2,9 @@
 
 FMU project live dashboard - A comprehensive control panel for managing FMU projects, tasks, and GitHub integrations.
 
-## Current Status - Stage 3 Complete ✅
+## Current Status - All Stages Complete ✅
 
-This project has completed Stages 0, 1, 2, and 3, with the following features:
+This project has completed all 5 stages (0-4), with the following features:
 
 ### Stage 0 - Base Skeleton
 - Django 5.2.8 project structure
@@ -37,6 +37,18 @@ This project has completed Stages 0, 1, 2, and 3, with the following features:
 - **UI Indicators**: AUTO STATUS and AUTO SYNC badges on project pages
 - **Manual Trigger**: Button to manually trigger status updates
 - **Configuration**: Per-project auto_status_enabled, auto_sync_issues, stale_days settings
+
+### Stage 4 - Production Hardening + Docker + Deployment Docs
+- **Production Settings**: DEBUG=False, secure cookies, HSTS, XSS protection
+- **PostgreSQL Database**: Production-ready database in docker-compose
+- **Gunicorn**: Production WSGI server with 3 workers
+- **Nginx**: Reverse proxy with compression, caching, rate limiting
+- **WhiteNoise**: Efficient static file serving
+- **Docker Compose**: Multi-container setup with health checks
+- **SSL/HTTPS Support**: Configuration for Let's Encrypt certificates
+- **DEPLOYMENT.md**: Complete deployment guide with step-by-step instructions
+- **Environment Configuration**: Comprehensive .env.example with all settings
+- **Security Best Practices**: Cookie security, CSRF protection, secure headers
 
 ## Setup Instructions
 
@@ -103,9 +115,11 @@ fmucontrolpanel/
 
 - **Backend**: Django 5.2.8
 - **Frontend**: Tailwind CSS (CDN), HTMX (CDN)
-- **Database**: SQLite (development), PostgreSQL (production - Stage 4)
-- **Server**: Gunicorn
+- **Database**: SQLite (development), PostgreSQL 16 (production)
+- **Web Server**: Nginx with reverse proxy
+- **Application Server**: Gunicorn with 3 workers
 - **Containerization**: Docker & Docker Compose
+- **Static Files**: WhiteNoise for production serving
 
 ## Development Stages
 
@@ -113,7 +127,42 @@ fmucontrolpanel/
 - [x] **Stage 1**: Core Models + Manual Dashboard - Project management with tasks, links, and logs
 - [x] **Stage 2**: GitHub Read-Only Integration - PR, commit, and issue display
 - [x] **Stage 3**: Auto Status + Webhooks + Issue→Task Sync - Intelligent automation
-- [ ] **Stage 4**: Production Hardening + Deployment Docs
+- [x] **Stage 4**: Production Hardening + Deployment Docs - Production-ready deployment
+
+## Production Deployment
+
+For production deployment to a VPS, see the comprehensive guide:
+
+**📖 [DEPLOYMENT.md](./DEPLOYMENT.md)**
+
+The deployment guide includes:
+- VPS setup and configuration
+- Docker installation
+- SSL/HTTPS setup with Let's Encrypt
+- GitHub webhook configuration
+- Database backups
+- Troubleshooting guide
+- Security best practices
+
+### Quick Production Start
+
+```bash
+# Clone repository on VPS
+git clone https://github.com/munaimtahir/fmucontrolpanel.git
+cd fmucontrolpanel
+
+# Configure environment
+cp .env.example .env
+nano .env  # Edit with your production values
+
+# Deploy with Docker Compose
+docker-compose up -d --build
+
+# Create superuser
+docker-compose exec web python manage.py createsuperuser
+
+# Access at http://your-domain.com
+```
 
 ## Contributing
 
