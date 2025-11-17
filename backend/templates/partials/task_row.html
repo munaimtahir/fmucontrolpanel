@@ -1,0 +1,63 @@
+<div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+     id="task-{{ task.id }}">
+    <div class="flex-1">
+        <div class="flex items-center gap-3">
+            <button 
+                hx-post="{% url 'toggle_task_status' task.id %}"
+                hx-target="#task-{{ task.id }}"
+                hx-swap="outerHTML"
+                class="w-6 h-6 rounded border-2 flex items-center justify-center transition
+                    {% if task.status == 'DONE' %}bg-green-500 border-green-500
+                    {% elif task.status == 'IN_PROGRESS' %}bg-blue-500 border-blue-500
+                    {% elif task.status == 'BLOCKED' %}bg-red-500 border-red-500
+                    {% else %}border-gray-300 hover:border-blue-500{% endif %}">
+                {% if task.status == 'DONE' %}
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {% elif task.status == 'IN_PROGRESS' %}
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="4"></circle>
+                </svg>
+                {% elif task.status == 'BLOCKED' %}
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                {% endif %}
+            </button>
+            
+            <div class="flex-1">
+                <h3 class="font-semibold text-gray-800 {% if task.status == 'DONE' %}line-through text-gray-500{% endif %}">
+                    {{ task.title }}
+                </h3>
+                {% if task.description %}
+                <p class="text-sm text-gray-600 mt-1">{{ task.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-3 ml-4">
+        <span class="px-2 py-1 text-xs font-semibold rounded
+            {% if task.priority == 'URGENT' %}bg-red-100 text-red-800
+            {% elif task.priority == 'HIGH' %}bg-orange-100 text-orange-800
+            {% elif task.priority == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+            {% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ task.get_priority_display }}
+        </span>
+        
+        {% if task.due_date %}
+        <span class="text-sm text-gray-500">
+            Due: {{ task.due_date|date:"M d" }}
+        </span>
+        {% endif %}
+        
+        <span class="px-2 py-1 text-xs font-semibold rounded
+            {% if task.status == 'DONE' %}bg-green-100 text-green-800
+            {% elif task.status == 'IN_PROGRESS' %}bg-blue-100 text-blue-800
+            {% elif task.status == 'BLOCKED' %}bg-red-100 text-red-800
+            {% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ task.get_status_display }}
+        </span>
+    </div>
+</div>

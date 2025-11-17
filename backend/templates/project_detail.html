@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - FMU Control Panel{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="mb-6">
+        <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
+    </div>
+    
+    <!-- Project Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-800">{{ project.name }}</h1>
+                {% if project.repo_name %}
+                <p class="text-sm text-gray-600 mt-1">
+                    <span class="font-semibold">Repository:</span> {{ project.repo_name }}
+                    {% if project.auto_status_enabled %}
+                    <span class="ml-2 px-2 py-0.5 text-xs bg-purple-100 text-purple-800 rounded">AUTO STATUS</span>
+                    {% endif %}
+                    {% if project.auto_sync_issues %}
+                    <span class="ml-1 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded">AUTO SYNC</span>
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+            <div class="flex gap-2 items-start">
+                <span class="px-3 py-1 text-sm font-semibold rounded-full
+                    {% if project.status == 'COMPLETED' %}bg-green-100 text-green-800
+                    {% elif project.status == 'IN_PROGRESS' %}bg-blue-100 text-blue-800
+                    {% elif project.status == 'BLOCKED' %}bg-red-100 text-red-800
+                    {% elif project.status == 'STALE' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ project.get_status_display }}
+                </span>
+                <span class="px-3 py-1 text-sm font-semibold rounded-full
+                    {% if project.risk == 'HIGH' %}bg-red-100 text-red-800
+                    {% elif project.risk == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-green-100 text-green-800{% endif %}">
+                    Risk: {{ project.get_risk_display }}
+                </span>
+                {% if project.repo_name and project.auto_status_enabled %}
+                <button 
+                    hx-post="{% url 'update_project_status' project.id %}"
+                    hx-swap="none"
+                    class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition font-semibold">
+                    🔄 Update
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if project.description %}
+        <p class="text-gray-600 mb-4">{{ project.description }}</p>
+        {% endif %}
+        
+        <!-- Editable Project Form -->
+        <form method="post" class="space-y-4 mt-6 p-4 bg-gray-50 rounded">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_project">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        {% for value, label in project.STATUS_CHOICES %}
+                        <option value="{{ value }}" {% if project.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Risk Level</label>
+                    <select name="risk" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        {% for value, label in project.RISK_CHOICES %}
+                        <option value="{{ value }}" {% if project.risk == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Summary</label>
+                <textarea name="summary" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ project.summary }}</textarea>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Next Task</label>
+                <input type="text" name="next_task" value="{{ project.next_task }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            {% if project.repo_name %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-purple-50 rounded">
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="auto_status_enabled" value="1" {% if project.auto_status_enabled %}checked{% endif %} class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm font-semibold text-gray-700">Enable Auto Status</span>
+                    </label>
+                    <p class="text-xs text-gray-600 mt-1 ml-6">Automatically update status from GitHub activity</p>
+                </div>
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="auto_sync_issues" value="1" {% if project.auto_sync_issues %}checked{% endif %} class="w-4 h-4 text-blue-600 rounded">
+                        <span class="text-sm font-semibold text-gray-700">Auto Sync Issues</span>
+                    </label>
+                    <p class="text-xs text-gray-600 mt-1 ml-6">Sync GitHub issues to tasks</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Stale After (days)</label>
+                    <input type="number" name="stale_days" value="{{ project.stale_days }}" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+                Update Project
+            </button>
+        </form>
+    </div>
+    
+    <!-- Tasks Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Tasks</h2>
+        
+        <div class="space-y-2" id="task-list">
+            {% for task in tasks %}
+                {% include 'partials/task_row.html' %}
+            {% empty %}
+                <p class="text-gray-500 text-center py-4">No tasks yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- GitHub Activity Section -->
+    {% if project.repo_name and github_data %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">GitHub Activity</h2>
+            <a href="https://github.com/{{ project.repo_name }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1">
+                View on GitHub
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Pull Requests -->
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    Open Pull Requests ({{ github_data.pull_requests|length }})
+                </h3>
+                <div class="space-y-2">
+                    {% for pr in github_data.pull_requests|slice:":5" %}
+                    <a href="{{ pr.html_url }}" target="_blank" class="block p-3 border border-gray-200 rounded hover:border-green-500 hover:bg-green-50 transition">
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-600 font-mono text-sm">#{{ pr.number }}</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ pr.title }}</p>
+                                <p class="text-xs text-gray-500">by {{ pr.user }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No open pull requests</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Recent Commits -->
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    Recent Commits
+                </h3>
+                <div class="space-y-2">
+                    {% for commit in github_data.commits %}
+                    <a href="{{ commit.html_url }}" target="_blank" class="block p-3 border border-gray-200 rounded hover:border-blue-500 hover:bg-blue-50 transition">
+                        <div class="flex items-start gap-2">
+                            <code class="text-xs bg-gray-100 px-2 py-1 rounded">{{ commit.sha }}</code>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-800 truncate">{{ commit.message }}</p>
+                                <p class="text-xs text-gray-500">{{ commit.author }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No recent commits</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Open Issues -->
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                    Open Issues ({{ github_data.issues|length }})
+                </h3>
+                <div class="space-y-2">
+                    {% for issue in github_data.issues|slice:":5" %}
+                    <a href="{{ issue.html_url }}" target="_blank" class="block p-3 border border-gray-200 rounded hover:border-orange-500 hover:bg-orange-50 transition">
+                        <div class="flex items-start gap-2">
+                            <span class="text-orange-600 font-mono text-sm">#{{ issue.number }}</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ issue.title }}</p>
+                                <p class="text-xs text-gray-500">by {{ issue.user }}</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <p class="text-sm text-gray-500">No open issues</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Links Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Links & Resources</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {% for link in links %}
+            <a href="{{ link.url }}" target="_blank" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-800">{{ link.title }}</h3>
+                    <p class="text-sm text-gray-500">{{ link.get_link_type_display }}</p>
+                </div>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+            </a>
+            {% empty %}
+            <p class="text-gray-500 col-span-2 text-center py-4">No links yet.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Add Link Form -->
+        <form method="post" class="p-4 bg-gray-50 rounded space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_link">
+            <h3 class="font-semibold text-gray-700">Add New Link</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <input type="text" name="title" placeholder="Link Title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <input type="url" name="url" placeholder="https://..." required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex gap-2">
+                    <select name="link_type" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="GITHUB">GitHub</option>
+                        <option value="DOCS">Documentation</option>
+                        <option value="DEPLOYMENT">Deployment</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+                        Add
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Log Entries Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Activity Log</h2>
+        
+        <div class="space-y-3 mb-6">
+            {% for log in logs %}
+            <div class="flex gap-4 p-3 bg-gray-50 rounded">
+                <div class="text-sm text-gray-500 whitespace-nowrap">
+                    {{ log.timestamp|date:"M d, Y H:i" }}
+                </div>
+                <div class="flex-1 text-gray-700">
+                    {{ log.message }}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 text-center py-4">No log entries yet.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Add Log Form -->
+        <form method="post" class="p-4 bg-gray-50 rounded space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_log">
+            <h3 class="font-semibold text-gray-700">Add Log Entry</h3>
+            
+            <div class="flex gap-2">
+                <textarea name="message" rows="2" placeholder="Enter activity or update..." required class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold self-start">
+                    Add Log
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
