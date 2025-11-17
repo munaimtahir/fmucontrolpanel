@@ -20,5 +20,8 @@ from main import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('project/<int:project_id>/', views.project_detail, name='project_detail'),
+    path('task/<int:task_id>/toggle/', views.toggle_task_status, name='toggle_task_status'),
+    path('today/', views.today_view, name='today'),
     path('admin/', admin.site.urls),
 ]

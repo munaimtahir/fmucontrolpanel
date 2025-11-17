@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FMU Control Panel{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">Project Dashboard</h2>
+        <p class="text-gray-600 mt-2">Overview of all FMU projects</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+        <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <a href="{% url 'project_detail' project.id %}" class="hover:text-blue-600 transition">
+                            {{ project.name }}
+                        </a>
+                    </h3>
+                </div>
+                
+                <!-- Status and Risk Badges -->
+                <div class="flex gap-2 mb-4">
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full
+                        {% if project.status == 'COMPLETED' %}bg-green-100 text-green-800
+                        {% elif project.status == 'IN_PROGRESS' %}bg-blue-100 text-blue-800
+                        {% elif project.status == 'BLOCKED' %}bg-red-100 text-red-800
+                        {% elif project.status == 'STALE' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ project.get_status_display }}
+                    </span>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full
+                        {% if project.risk == 'HIGH' %}bg-red-100 text-red-800
+                        {% elif project.risk == 'MEDIUM' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-green-100 text-green-800{% endif %}">
+                        Risk: {{ project.get_risk_display }}
+                    </span>
+                </div>
+                
+                <!-- Summary -->
+                <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                    {{ project.summary }}
+                </p>
+                
+                <!-- Next Task -->
+                {% if project.next_task %}
+                <div class="mb-4 p-3 bg-blue-50 rounded border-l-4 border-blue-500">
+                    <p class="text-xs text-blue-600 font-semibold mb-1">Next Task:</p>
+                    <p class="text-sm text-gray-700">{{ project.next_task }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- Footer Stats -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div class="text-sm text-gray-500">
+                        <span class="font-semibold">{{ project.open_tasks_count }}</span> open task{{ project.open_tasks_count|pluralize }}
+                    </div>
+                    <a href="{% url 'project_detail' project.id %}" 
+                       class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition">
+                        View Details →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-12">
+            <p class="text-gray-500 text-lg">No projects found. Run <code class="bg-gray-100 px-2 py-1 rounded">python manage.py seed_projects</code> to create sample data.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
