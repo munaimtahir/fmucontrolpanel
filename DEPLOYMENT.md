@@ -124,7 +124,7 @@ Edit `.env` and update these **critical** values:
 # Django Settings
 DEBUG=0
 SECRET_KEY=your-very-long-random-secret-key-change-this
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,172.235.33.181
 
 # PostgreSQL Database
 POSTGRES_DB=fmucontrolpanel
@@ -512,7 +512,7 @@ Before going live, ensure:
 - [ ] `DEBUG=0` in `.env`
 - [ ] Strong `SECRET_KEY` generated
 - [ ] Secure database password set
-- [ ] `ALLOWED_HOSTS` contains your domain
+- [ ] `ALLOWED_HOSTS` contains your domain (and `172.235.33.181` for the VPS)
 - [ ] SSL certificate installed and working
 - [ ] Firewall configured (ports 22, 80, 443)
 - [ ] GitHub webhook configured and tested
