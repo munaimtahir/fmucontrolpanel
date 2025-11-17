@@ -8,7 +8,9 @@ import os
 DEBUG = False
 
 # SECURITY WARNING: update this with your domain
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS', 'localhost,172.235.33.181,104.64.0.164'
+).split(',')
 
 # Database - PostgreSQL for production
 DATABASES = {
