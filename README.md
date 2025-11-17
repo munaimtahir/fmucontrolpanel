@@ -2,9 +2,9 @@
 
 FMU project live dashboard - A comprehensive control panel for managing FMU projects, tasks, and GitHub integrations.
 
-## Current Status - Stage 2 Complete ✅
+## Current Status - Stage 3 Complete ✅
 
-This project has completed Stages 0, 1, and 2, with the following features:
+This project has completed Stages 0, 1, 2, and 3, with the following features:
 
 ### Stage 0 - Base Skeleton
 - Django 5.2.8 project structure
@@ -27,6 +27,16 @@ This project has completed Stages 0, 1, and 2, with the following features:
 - **GitHub Activity Section**: Display PRs, commits, and issues on project detail pages
 - **Review & Merge Queue**: Centralized view of all open PRs across repositories
 - **Environment Configuration**: GITHUB_TOKEN support for API authentication
+
+### Stage 3 - Auto Status/Risk + Webhooks + Issue→Task Sync
+- **Automatic Status Engine**: Auto-set IN_PROGRESS, BLOCKED, STALE based on GitHub activity
+- **Automatic Risk Calculation**: Set HIGH risk when critical issues exist
+- **GitHub Webhooks**: Endpoint at `/webhooks/github/` for real-time updates
+- **Event Handling**: pull_request, issues, workflow_run webhook events
+- **Issue-to-Task Sync**: Automatically create/close tasks from GitHub issues
+- **UI Indicators**: AUTO STATUS and AUTO SYNC badges on project pages
+- **Manual Trigger**: Button to manually trigger status updates
+- **Configuration**: Per-project auto_status_enabled, auto_sync_issues, stale_days settings
 
 ## Setup Instructions
 
@@ -102,7 +112,7 @@ fmucontrolpanel/
 - [x] **Stage 0**: Base Skeleton - Django setup with Tailwind CSS and HTMX
 - [x] **Stage 1**: Core Models + Manual Dashboard - Project management with tasks, links, and logs
 - [x] **Stage 2**: GitHub Read-Only Integration - PR, commit, and issue display
-- [ ] **Stage 3**: Auto Status + Webhooks + Issue→Task Sync
+- [x] **Stage 3**: Auto Status + Webhooks + Issue→Task Sync - Intelligent automation
 - [ ] **Stage 4**: Production Hardening + Deployment Docs
 
 ## Contributing

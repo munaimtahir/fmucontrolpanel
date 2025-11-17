@@ -1,8 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
 from .models import Project, Task, Link, LogEntry
 from .github_client import GitHubClient
+from .webhook_handler import WebhookHandler
+from .status_engine import StatusEngine
 
 
 def home(request):
@@ -21,6 +26,17 @@ def project_detail(request, project_id):
         project.risk = request.POST.get('risk', project.risk)
         project.summary = request.POST.get('summary', project.summary)
         project.next_task = request.POST.get('next_task', project.next_task)
+        
+        # Handle checkbox fields
+        project.auto_status_enabled = request.POST.get('auto_status_enabled') == '1'
+        project.auto_sync_issues = request.POST.get('auto_sync_issues') == '1'
+        
+        # Handle stale_days
+        try:
+            project.stale_days = int(request.POST.get('stale_days', project.stale_days))
+        except (ValueError, TypeError):
+            pass
+        
         project.save()
         return redirect('project_detail', project_id=project.id)
     
@@ -123,3 +139,61 @@ def review_merge_queue(request):
     all_prs.sort(key=lambda x: x.get('updated_at', ''), reverse=True)
     
     return render(request, 'review_merge.html', {'pull_requests': all_prs})
+
+
+@csrf_exempt
+@require_POST
+def github_webhook(request):
+    """GitHub webhook endpoint for real-time updates"""
+    # Get the webhook signature
+    signature = request.META.get('HTTP_X_HUB_SIGNATURE_256', '')
+    
+    # Verify signature (in production, you should enforce this)
+    # payload_body = request.body
+    # if not WebhookHandler.verify_signature(payload_body, signature):
+    #     return HttpResponse('Invalid signature', status=403)
+    
+    # Parse the webhook payload
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponse('Invalid JSON', status=400)
+    
+    # Get event type from header
+    event_type = request.META.get('HTTP_X_GITHUB_EVENT', '')
+    
+    # Handle different event types
+    handled = False
+    
+    if event_type == 'pull_request':
+        handled = WebhookHandler.handle_pull_request(data)
+    elif event_type == 'issues':
+        handled = WebhookHandler.handle_issues(data)
+    elif event_type == 'workflow_run':
+        handled = WebhookHandler.handle_workflow_run(data)
+    elif event_type == 'ping':
+        # GitHub sends a ping event when webhook is first set up
+        return JsonResponse({'status': 'pong'})
+    
+    if handled:
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'ignored', 'event': event_type})
+
+
+def update_project_status(request, project_id):
+    """Manually trigger status update for a project"""
+    project = get_object_or_404(Project, id=project_id)
+    
+    if not project.repo_name:
+        return JsonResponse({'error': 'Project has no repository configured'}, status=400)
+    
+    engine = StatusEngine(project)
+    updated = engine.auto_update()
+    
+    return JsonResponse({
+        'success': True,
+        'updated': updated,
+        'status': project.status,
+        'risk': project.risk
+    })

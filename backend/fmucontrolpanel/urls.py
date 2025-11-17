@@ -21,8 +21,10 @@ from main import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('project/<int:project_id>/', views.project_detail, name='project_detail'),
+    path('project/<int:project_id>/update-status/', views.update_project_status, name='update_project_status'),
     path('task/<int:task_id>/toggle/', views.toggle_task_status, name='toggle_task_status'),
     path('today/', views.today_view, name='today'),
     path('review-merge/', views.review_merge_queue, name='review_merge'),
+    path('webhooks/github/', views.github_webhook, name='github_webhook'),
     path('admin/', admin.site.urls),
 ]

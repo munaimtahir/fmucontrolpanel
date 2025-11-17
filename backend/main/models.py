@@ -26,6 +26,9 @@ class Project(models.Model):
     risk = models.CharField(max_length=10, choices=RISK_CHOICES, default='LOW')
     summary = models.TextField(blank=True, help_text="Brief project summary")
     next_task = models.CharField(max_length=200, blank=True, help_text="Next immediate action")
+    auto_sync_issues = models.BooleanField(default=False, help_text="Automatically sync GitHub issues to tasks")
+    auto_status_enabled = models.BooleanField(default=False, help_text="Enable automatic status updates from GitHub")
+    stale_days = models.IntegerField(default=7, help_text="Days without commits before marked STALE")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
